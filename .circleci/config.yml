@@ -1,9 +1,35 @@
 version: 2.1
-
-orbs:
-    hello: circleci/hello-build@0.0.7 # uses the circleci/buildpack-deps Docker image
-
+executors:
+  default:
+    docker:
+      - image: circleci/ruby:2.5
+commands:
+  install_gems:
+    description: "install dependencies"
+    steps:
+      - run: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs=4 --retry=3
+  rspec:
+    description: "Run RSpec"
+    steps:
+      - run:
+          command: bundle exec rspec
+          when: always
+  cucumber:
+    description: "Run cucumber"
+    steps:
+      - run: 
+          command: bundle exec cucumber
+          when: always
+jobs:
+  test:
+    executor: default
+    steps:
+      - checkout
+      - install_gems
+      - rspec
+      - cucumber
 workflows:
-    "Hello Workflow":
-        jobs:
-          - hello/hello-build
+  pr:
+    jobs:
+      - test
+
