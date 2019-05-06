@@ -1,4 +1,15 @@
 language: android
+jdk: oraclejdk8
+
+env:
+  global:
+    - ANDROID_API_LEVEL=27
+    - ANDROID_EMULATOR_LEVEL=18
+    - ANDROID_BUILD_TOOLS_VERSION=27.0.3
+    - ADB_INSTALL_TIMEOUT=20
+    - ANDROID_ABI=armeabi -v7a
+    - ANDROID_TAG = google_apis
+    - QEMU_AUDIO_DRV = none
 android:
   components:
     - tools # to get the new `repository-11.xml`
@@ -6,7 +17,17 @@ android:
     - platform-tools
     - build-tools-27.0.3
     - android-27
+  
+licenses:
+  - android-sdk-preview-license-.+
+  - android-sdk-license-.+
+  - google-gdk-license-.+
+  
 before_install:
   - yes | sdkmanager "platforms;android-27"
+  - echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > "$ANDROID_HOME/licenses/android-sdk-license"
+  - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license"  
+
 script:
    - ./gradlew build connectedCheck
+   - adb shell input keyevent 82
